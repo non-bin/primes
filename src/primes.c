@@ -2,28 +2,24 @@
 #include <pthread.h>
 #include <math.h>
 
-// set the chunk size for each thread to calculate
-const __uint64_t chunkSize = 10000;
+const __uint64_t chunkSize = 100000; // set the chunk size for each thread to calculate
+char threadCount = 4; // number of threads to create
+pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; // create the mutex
 
-char threadCount = 2;
-
-// create shared variables for threads
-__uint64_t potentialPrime = 0;
-__uint64_t nextChunkStart = 3;
-__uint64_t maxCompare     = 0;
-char       couldBePrime   = 1;
-char       keepGoing      = 1;
-
-// create the mutex
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+__uint64_t globalInput;
+__uint64_t globalChunk;
+__uint64_t globalMaxCompare;
+char globalContinue;
+char globalIsPrime;
 
 // do a chunk of comparasons
 char checkChunk(__uint64_t input, __uint64_t start) {
     const __uint64_t end = start + chunkSize;
 
     for (__uint64_t compare = start; compare <= end; compare += 2) {
+        // printf("%d - %lu\n", threadNo, compare);
         if (input % compare == 0) {
-            printf("%lu is devisable by %lu\n", );
+            printf("%lu is devisable by %lu\n", input, compare);
             return 0;
         }
     }
@@ -32,26 +28,26 @@ char checkChunk(__uint64_t input, __uint64_t start) {
 }
 
 void *thread() {
-    __uint64_t chunkStart = 3;
+    printf("Starting thread\n");
+    __uint64_t chunkStart;
 
-    while (keepGoing) {
-        pthread_mutex_lock(&mutex); // lock
+    while(globalContinue) {
+        pthread_mutex_lock(&mutex);
+        chunkStart = globalChunk;
 
-        chunkStart      = nextChunkStart;
-        nextChunkStart += chunkSize;
-
-        // if we're on the last chunk
-        if (chunkStart + chunkSize >= maxCompare) {
-            keepGoing = 0; // tell other threads to stop at the end of their chunk
+        // if we're at the last chunk
+        if (chunkStart + chunkSize >= globalMaxCompare) {
+            globalContinue = 0; // tell the rest of the threads to stop
+        } else {
+            globalChunk += chunkSize;
         }
-
         pthread_mutex_unlock(&mutex);
 
-
-        if (!checkChunk(potentialPrime, chunkStart)) {
-            pthread_mutex_lock(&mutex); // lock
-            keepGoing    = 0;  // tell other threads to stop at the end of their chunk
-            couldBePrime = 0;
+        // if it's not a prime
+        if (!checkChunk(globalInput, chunkStart)) {
+            globalContinue = 0; // tell all threads to stop
+            globalIsPrime  = 0; // tell the main thread it's not a prime
+            break; // break out
         }
     }
 
@@ -59,53 +55,45 @@ void *thread() {
 }
 
 char isPrime(__uint64_t input) {
-    maxCompare = input / 3;
+    int rc;
     pthread_t threads[16];
-    int threadError;
+
+    globalInput      = input;
+    globalContinue   = 1;
+    globalIsPrime    = 1;
+    globalChunk      = 3;
+    globalMaxCompare = input / 3;
 
     if (input % 2 == 0) {
         return 0;
     }
 
-    couldBePrime = 1;
-
-    for (char i = 0; i < threadCount; i++)
+    for(char i = 0; i < threadCount; i++)
     {
-        if( (threadError=pthread_create( &threads[i], NULL, &thread, NULL)) )
+        if( (rc=pthread_create( &threads[i], NULL, &thread, NULL)) )
         {
-            printf("Thread creation failed: %d\n", threadError);
+            printf("Thread %d creation failed: %d\n", i, rc);
+        } else {
+            printf("Created thread %d\n", i);
         }
     }
 
-    for (char i = 0; i < threadCount; i++)
+    for(char i = 0; i < threadCount; i++)
     {
         pthread_join(threads[i], NULL);
     }
 
-    if (couldBePrime) {
-        return 1;
-    } else {
-        return 0;
-    }
+    return globalIsPrime;
 }
 
 int main(int argc, char const *argv[])
 {
-    if (1) {
-        __uint64_t input = 50000000021; // 50000000021 10000000019 5000000029 383
+    __uint64_t input = 50000000021;
 
-        if (isPrime(input) == 1) {
-            printf("Yeah\n");
-        } else {
-            printf("Nah\n");
-        }
+    if (isPrime(input)) {
+        printf("yee\n");
     } else {
-        for (__uint64_t input = 0; input < 100; input++)
-        {
-            if (isPrime(input) == 1) {
-                printf("%lu\n", input);
-            }
-        }
+        printf("nah\n");
     }
 
     return 0;
