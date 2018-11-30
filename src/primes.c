@@ -3,8 +3,8 @@
 #include <math.h>
 
 // determine if a number is a prime or not
-char isPrime(unsigned long long input) {
-    unsigned long long maxCompare = input / 5;
+char isPrime(__uint64_t input) {
+    __uint64_t maxCompare = input / 3;
     int count = 0;
 
     if (input % 2 == 0)
@@ -12,12 +12,7 @@ char isPrime(unsigned long long input) {
         return 0;
     }
 
-    if (input % (input / 3) == 0)
-    {
-        return 0;
-    }
-
-    for (unsigned long long compare = 3; compare <= maxCompare; compare += 2)
+    for (__uint64_t compare = 3; compare <= maxCompare; compare += 2)
     {
         if (input % compare == 0)
         {
