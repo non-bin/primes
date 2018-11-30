@@ -2,6 +2,24 @@
 #include <pthread.h>
 #include <math.h>
 
+// fun stuff to mess with
+// if you can add commandline params
+// to replace recompiling every time,
+// ill merge it in
+
+// whether to calculate the single input (1) or the range (0)
+char calcSingle = 1;
+
+// single input number to test
+__uint64_t input = 5000000029;
+
+// start and end of calculation range
+__uint64_t start = 0;
+__uint64_t end = 1000;
+
+// now the booring things
+
+
 // determine if a number is a prime or not
 char isPrime(__uint64_t input) {
     __uint64_t maxCompare = input / 3;
@@ -24,20 +42,21 @@ char isPrime(__uint64_t input) {
 }
 
 int main() {
-    unsigned long long input = 5000000029; // 5000000029 383
-
-    if (isPrime(input) == 1) {
-        printf("Yeah\n");
+    if (calcSingle) {
+        printf("Begining calculation of %lu\n", input);
+        if (isPrime(input) == 1) {
+            printf("%lu is prime\ndone\n", input);
+        } else {
+            printf("%lu is not prime\ndone\n", input);
+        }
     } else {
-        printf("Nah\n");
+        for (__uint64_t input = start; input < end; input++)
+        {
+            if (isPrime(input) == 1) {
+                printf("%lu\n", input);
+            }
+        }
     }
-
-    // for (unsigned long long input = 5000000029; input < 50000000000; input++)
-    // {
-    //     if (isPrime(input) == 1) {
-    //         printf("%llu\n", input);
-    //     }
-    // }
 
     return 0;
 }
