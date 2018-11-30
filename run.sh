@@ -1,1 +1,2 @@
-gcc src/primes.c -o bin/primes -l pthread && time ./bin/primes
+mkdir -p bin
+gcc src/primes.c -o bin/primes -l pthread && ./bin/primes
