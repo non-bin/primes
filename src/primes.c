@@ -2,8 +2,21 @@
 #include <pthread.h>
 #include <math.h>
 
-const __uint64_t chunkSize = 50000000; // set the chunk size for each thread to calculate
-char threadCount = 4; // number of threads to create
+// fun stuff to mess with
+// if you can add commandline params
+// to replace recompiling every time,
+// ill merge it in
+
+char       calcSingle  = 1;           // whether to calculate the single input (1) or the range (0)
+__uint64_t input       = 5000000029;  // single input number to test
+__uint64_t start       = 0;           // start of calculation range
+__uint64_t end         = 1000;        // end of calculation range
+__uint64_t chunkSize   = 50000000;    // set the chunk size for each thread to calculate
+char       threadCount = 4;           // number of threads to create
+
+// now the booring things
+
+
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; // create the mutex
 
 __uint64_t globalInput;
@@ -91,12 +104,20 @@ char isPrime(__uint64_t input) {
 
 int main(int argc, char const *argv[])
 {
-    __uint64_t input = 50000000021;
-
-    if (isPrime(input)) {
-        printf("yee\n");
+    if (calcSingle) {
+        printf("Begining calculation of %lu\n", input);
+        if (isPrime(input) == 1) {
+            printf("%lu is prime\ndone\n", input);
+        } else {
+            printf("%lu is not prime\ndone\n", input);
+        }
     } else {
-        printf("nah\n");
+        for (__uint64_t input = start; input < end; input++)
+        {
+            if (isPrime(input) == 1) {
+                printf("%lu\n", input);
+            }
+        }
     }
 
     return 0;
