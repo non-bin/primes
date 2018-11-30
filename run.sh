@@ -1,2 +1,2 @@
-gcc src/primes.c -o bin/primes
-time ./bin/primes
+mkdir -p bin
+gcc src/primes.c -o bin/primes && ./bin/primes
