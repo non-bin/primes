@@ -7,15 +7,10 @@
 // to replace recompiling every time,
 // ill merge it in
 
-// whether to calculate the single input (1) or the range (0)
-char calcSingle = 1;
-
-// single input number to test
-__uint64_t input = 5000000029;
-
-// start and end of calculation range
-__uint64_t start = 0;
-__uint64_t end = 1000;
+char       calcSingle = 1;           // whether to calculate the single input (1) or the range (0)
+__uint64_t input      = 5000000029;  // single input number to test
+__uint64_t start      = 0;           // start of calculation range
+__uint64_t end        = 1000;        // end of calculation range
 
 // now the booring things
 
