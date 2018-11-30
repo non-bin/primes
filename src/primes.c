@@ -2,7 +2,7 @@
 #include <pthread.h>
 #include <math.h>
 
-const __uint64_t chunkSize = 100000; // set the chunk size for each thread to calculate
+const __uint64_t chunkSize = 50000000; // set the chunk size for each thread to calculate
 char threadCount = 4; // number of threads to create
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; // create the mutex
 
@@ -19,7 +19,7 @@ char checkChunk(__uint64_t input, __uint64_t start) {
     for (__uint64_t compare = start; compare <= end; compare += 2) {
         // printf("%d - %lu\n", threadNo, compare);
         if (input % compare == 0) {
-            printf("%lu is devisable by %lu\n", input, compare);
+            printf("%lu is devisable by %lu\n", globalInput, compare);
             return 0;
         }
     }
@@ -49,6 +49,9 @@ void *thread() {
             globalIsPrime  = 0; // tell the main thread it's not a prime
             break; // break out
         }
+
+        // print where we're up to
+        // printf("%lu\n%lu\n\n", globalMaxCompare, chunkStart);
     }
 
     return NULL;
