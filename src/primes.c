@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <math.h>
+typedef unsigned long __largeuint_t;
 
 // fun stuff to mess with
 // if you can add commandline params
@@ -11,22 +12,22 @@ char calcSingle = 0;  // whether to calculate a single input (1) or the range (0
 
 unsigned long input = 5000000029;  // single input number to test
 
-unsigned long start = 1;    // start of calculation range
-unsigned long   end = 100;  // end of calculation range
+__largeuint_t start = 1;    // start of calculation range
+__largeuint_t   end = 100;  // end of calculation range
 
 // now the booring things
 
 
 // determine if a number is a prime or not
-char isPrime(unsigned long input) {
-    unsigned long maxCompare = input / 3;
+char isPrime(__largeuint_t input) {
+    __largeuint_t maxCompare = input / 3;
 
     if (input % 2 == 0)
     {
         return 0;
     }
 
-    for (unsigned long compare = 3; compare <= maxCompare; compare += 2)
+    for (__largeuint_t compare = 3; compare <= maxCompare; compare += 2)
     {
         if (input % compare == 0)
         {
@@ -47,7 +48,7 @@ int main() {
         }
     } else {
         printf("Calculating primes from %lu to %lu\n", start, end);
-        for (unsigned long input = start; input < end; input++)
+        for (__largeuint_t input = start; input < end; input++)
         {
             if (isPrime(input) == 1) {
                 printf("%lu\n", input);
