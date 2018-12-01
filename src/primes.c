@@ -30,9 +30,7 @@ char globalContinue;
 char globalIsPrime;
 
 // do a chunk of comparasons
-char checkChunk(__largeuint_t input, __largeuint_t start) {
-    const __largeuint_t end = start + chunkSize;
-
+char checkChunk(__largeuint_t input, __largeuint_t start, __largeuint_t end) {
     for (__largeuint_t compare = start; compare <= end; compare += 2) {
         if (input % compare == 0) {
             return 0;
@@ -44,6 +42,7 @@ char checkChunk(__largeuint_t input, __largeuint_t start) {
 
 void *thread() {
     __largeuint_t chunkStart;
+    __largeuint_t chunkEnd;
 
     while(globalContinue) {
         pthread_mutex_lock(&mutex);
@@ -51,14 +50,16 @@ void *thread() {
 
         // if we're at the last chunk
         if (chunkStart + chunkSize >= globalMaxCompare) {
-            globalContinue = 0; // tell the rest of the threads to stop
+            globalContinue = 0;                 // tell the rest of the threads to stop
+            chunkEnd       = globalMaxCompare;  // don't go over globalMaxCompare, otherwise we might compare it to it's self
         } else {
             globalChunk += chunkSize;
+            chunkEnd     = chunkStart + chunkSize;
         }
         pthread_mutex_unlock(&mutex);
 
         // if it's not a prime
-        if (!checkChunk(globalInput, chunkStart)) {
+        if (!checkChunk(globalInput, chunkStart, chunkEnd)) {
             globalContinue = 0; // tell all threads to stop
             globalIsPrime  = 0; // tell the main thread it's not a prime
             break; // break out
