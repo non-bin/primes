@@ -7,25 +7,26 @@
 // to replace recompiling every time,
 // ill merge it in
 
-char       calcSingle = 1;           // whether to calculate the single input (1) or the range (0)
-__uint64_t input      = 5000000029;  // single input number to test
-__uint64_t start      = 0;           // start of calculation range
-__uint64_t end        = 1000;        // end of calculation range
+char calcSingle = 0;  // whether to calculate a single input (1) or the range (0)
+
+unsigned long input = 5000000029;  // single input number to test
+
+unsigned long start = 1;    // start of calculation range
+unsigned long   end = 100;  // end of calculation range
 
 // now the booring things
 
 
 // determine if a number is a prime or not
-char isPrime(__uint64_t input) {
-    __uint64_t maxCompare = input / 3;
-    int count = 0;
+char isPrime(unsigned long input) {
+    unsigned long maxCompare = input / 3;
 
     if (input % 2 == 0)
     {
         return 0;
     }
 
-    for (__uint64_t compare = 3; compare <= maxCompare; compare += 2)
+    for (unsigned long compare = 3; compare <= maxCompare; compare += 2)
     {
         if (input % compare == 0)
         {
@@ -45,7 +46,8 @@ int main() {
             printf("%lu is not prime\ndone\n", input);
         }
     } else {
-        for (__uint64_t input = start; input < end; input++)
+        printf("Calculating primes from %lu to %lu\n", start, end);
+        for (unsigned long input = start; input < end; input++)
         {
             if (isPrime(input) == 1) {
                 printf("%lu\n", input);
