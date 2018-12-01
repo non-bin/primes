@@ -12,8 +12,8 @@ char calcSingle = 1;  // whether to calculate the single input (1) or the range 
 
 __largeuint_t input = 5000000029;  // single input number to test
 
-__largeuint_t start = 0;     // start of calculation range
-__largeuint_t end   = 1000;  // end of calculation range
+__largeuint_t start = 1000000000;     // start of calculation range
+__largeuint_t end   = 1000000200;  // end of calculation range
 
 __largeuint_t chunkSize   = 10000000;  // the number of calculations for a thread to perform before checking in
 char          threadCount = 4;         // number of threads to create
