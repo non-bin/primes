@@ -35,7 +35,6 @@ char checkChunk(__largeuint_t input, __largeuint_t start) {
 
     for (__largeuint_t compare = start; compare <= end; compare += 2) {
         if (input % compare == 0) {
-            printf("%lu is devisable by %lu\n", globalInput, compare);
             return 0;
         }
     }
@@ -44,7 +43,6 @@ char checkChunk(__largeuint_t input, __largeuint_t start) {
 }
 
 void *thread() {
-    printf("Starting thread\n");
     __largeuint_t chunkStart;
 
     while(globalContinue) {
@@ -89,8 +87,6 @@ char isPrime(__largeuint_t input) {
         if( (rc=pthread_create( &threads[i], NULL, &thread, NULL)) )
         {
             printf("Thread %d creation failed: %d\n", i, rc);
-        } else {
-            printf("Created thread %d\n", i);
         }
     }
 
