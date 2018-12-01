@@ -27,7 +27,7 @@ And if you want to benchmark performance, you can run it with `time`
 ## Usage
 
 For the moment all settings are in the `primes.c` file, and the program must be recompiled whenever they are changed.  
-Some easy things to mess with are the config variables on lines 10-20. You can see the impact of adding threads by using `time` and changing the `threadCount` variable.
+Some easy things to mess with are the config variables on lines 10-20. You can see the impact of adding threads by using `time` and changing the `threadCount` variable (usually you want this to be equal to your cpu's core count).
 
 ## Some Primes To Test On
 
