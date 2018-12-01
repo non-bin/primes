@@ -29,6 +29,10 @@ And if you want to benchmark performance, you can run it with `time`
 For the moment all settings are in the `primes.c` file, and the program must be recompiled whenever they are changed.  
 Some easy things to mess with are the config variables on lines 10-20. You can see the impact of adding threads by using `time` and changing the `threadCount` variable (usually you want this to be equal to your cpu's core count).
 
+## Things To Note
+
+This version is pretty inefficient on small numbers, so try with a single large prime, or a range of higher primes (> 100000000)
+
 ## Some Primes To Test On
 
     992429121339693967
