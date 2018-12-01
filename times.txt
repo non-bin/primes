@@ -1,0 +1,10 @@
+Round 2 (50000000021)
+1:07 (single thread)
+34.8 (2 threads)
+18.2 (4 threads)
+
+Initial (5000000029)
+41.57
+20.72
+10.60
+3.8

@@ -24,15 +24,15 @@ First, make a folder for the binary. You only need to do this once.
 
 Then compile and run the program with the pthread library.
 
-    gcc src/primes.c -o bin/primes -l pthread && ./bin/primes
+    nvcc src/primes.cu -o bin/primes && ./bin/primes
 
 You only need to recompile if you change something in the program, so to just run it again, you can use
 
     ./bin/primes
 
-And if you want to benchmark performance, you can run it with `time`
+And if you want to benchmark performance, you can run it with `time` to show you overall time info, and or `nvprof` for GPU specific stats
 
-    time ./bin/primes
+    time nvprof ./bin/primes
 
 ## Usage
 
