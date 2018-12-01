@@ -1,36 +1,39 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <math.h>
+typedef unsigned long __largeuint_t;
 
 // fun stuff to mess with
 // if you can add commandline params
 // to replace recompiling every time,
 // ill merge it in
 
-char       calcSingle  = 1;           // whether to calculate the single input (1) or the range (0)
-__uint64_t input       = 5000000029;  // single input number to test
-__uint64_t start       = 0;           // start of calculation range
-__uint64_t end         = 1000;        // end of calculation range
-__uint64_t chunkSize   = 50000000;    // set the chunk size for each thread to calculate
-char       threadCount = 4;           // number of threads to create
+char calcSingle = 1;  // whether to calculate the single input (1) or the range (0)
+
+__largeuint_t input = 5000000029;  // single input number to test
+
+__largeuint_t start = 0;     // start of calculation range
+__largeuint_t end   = 1000;  // end of calculation range
+
+__largeuint_t chunkSize   = 10000000;  // the number of calculations for a thread to perform before checking in
+char          threadCount = 4;         // number of threads to create
 
 // now the booring things
 
 
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; // create the mutex
 
-__uint64_t globalInput;
-__uint64_t globalChunk;
-__uint64_t globalMaxCompare;
+__largeuint_t globalInput;
+__largeuint_t globalChunk;
+__largeuint_t globalMaxCompare;
 char globalContinue;
 char globalIsPrime;
 
 // do a chunk of comparasons
-char checkChunk(__uint64_t input, __uint64_t start) {
-    const __uint64_t end = start + chunkSize;
+char checkChunk(__largeuint_t input, __largeuint_t start) {
+    const __largeuint_t end = start + chunkSize;
 
-    for (__uint64_t compare = start; compare <= end; compare += 2) {
-        // printf("%d - %lu\n", threadNo, compare);
+    for (__largeuint_t compare = start; compare <= end; compare += 2) {
         if (input % compare == 0) {
             printf("%lu is devisable by %lu\n", globalInput, compare);
             return 0;
@@ -42,7 +45,7 @@ char checkChunk(__uint64_t input, __uint64_t start) {
 
 void *thread() {
     printf("Starting thread\n");
-    __uint64_t chunkStart;
+    __largeuint_t chunkStart;
 
     while(globalContinue) {
         pthread_mutex_lock(&mutex);
@@ -62,15 +65,12 @@ void *thread() {
             globalIsPrime  = 0; // tell the main thread it's not a prime
             break; // break out
         }
-
-        // print where we're up to
-        // printf("%lu\n%lu\n\n", globalMaxCompare, chunkStart);
     }
 
     return NULL;
 }
 
-char isPrime(__uint64_t input) {
+char isPrime(__largeuint_t input) {
     int rc;
     pthread_t threads[16];
 
@@ -112,7 +112,8 @@ int main(int argc, char const *argv[])
             printf("%lu is not prime\ndone\n", input);
         }
     } else {
-        for (__uint64_t input = start; input < end; input++)
+        printf("Calculating primes from %lu to %lu\n", start, end);
+        for (__largeuint_t input = start; input < end; input++)
         {
             if (isPrime(input) == 1) {
                 printf("%lu\n", input);
