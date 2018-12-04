@@ -1,99 +1,89 @@
-#include <stdio.h>
-#include <pthread.h>
+#include <iostream>
 #include <math.h>
 
-const __uint64_t chunkSize = 100000; // set the chunk size for each thread to calculate
-char threadCount = 4; // number of threads to create
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER; // create the mutex
+typedef unsigned long __largeuint_t;
 
-__uint64_t globalInput;
-__uint64_t globalChunk;
-__uint64_t globalMaxCompare;
-char globalContinue;
-char globalIsPrime;
+// fun stuff to mess with
+// if you can add commandline params
+// to replace recompiling every time,
+// ill merge it in
 
-// do a chunk of comparasons
-char checkChunk(__uint64_t input, __uint64_t start) {
-    const __uint64_t end = start + chunkSize;
+char calcSingle = 1;  // whether to calculate the single input (1) or the range (0)
 
-    for (__uint64_t compare = start; compare <= end; compare += 2) {
-        // printf("%d - %lu\n", threadNo, compare);
+__largeuint_t singleInput = 50000000021;  // single input number to test
+
+__largeuint_t start = 20;  // start of calculation range
+__largeuint_t end   = 20;  // end of calculation range
+
+// end fun stuff, start boring stuff
+
+// Kernel function
+__global__
+void kernel(__largeuint_t input, __largeuint_t globalMaxCompare, int *globalIsPrime) {
+    __largeuint_t index  = blockIdx.x * blockDim.x + threadIdx.x * 2 + 3;
+    __largeuint_t stride = blockDim.x * gridDim.x * 2;
+
+    if (index == 0 || index == 1) {
+        printf("INDEX IS %lu! SOMETHING HAS GOME WRONG!\n\n", index, blockIdx.x, blockDim.x, threadIdx.x);
+        *globalIsPrime = 0;
+        return;
+    }
+
+    for (__largeuint_t compare = index; compare < globalMaxCompare && globalIsPrime; compare += stride) {
         if (input % compare == 0) {
             printf("%lu is devisable by %lu\n", input, compare);
-            return 0;
+            *globalIsPrime = 0;
+            break;
         }
     }
-
-    return 1;
 }
 
-void *thread() {
-    printf("Starting thread\n");
-    __uint64_t chunkStart;
+int isPrime(__largeuint_t globalInput) {
+    __largeuint_t globalMaxCompare = globalInput / 3;
+    int *globalIsPrime;
 
-    while(globalContinue) {
-        pthread_mutex_lock(&mutex);
-        chunkStart = globalChunk;
-
-        // if we're at the last chunk
-        if (chunkStart + chunkSize >= globalMaxCompare) {
-            globalContinue = 0; // tell the rest of the threads to stop
-        } else {
-            globalChunk += chunkSize;
-        }
-        pthread_mutex_unlock(&mutex);
-
-        // if it's not a prime
-        if (!checkChunk(globalInput, chunkStart)) {
-            globalContinue = 0; // tell all threads to stop
-            globalIsPrime  = 0; // tell the main thread it's not a prime
-            break; // break out
-        }
-    }
-
-    return NULL;
-}
-
-char isPrime(__uint64_t input) {
-    int rc;
-    pthread_t threads[16];
-
-    globalInput      = input;
-    globalContinue   = 1;
-    globalIsPrime    = 1;
-    globalChunk      = 3;
-    globalMaxCompare = input / 3;
-
-    if (input % 2 == 0) {
+    if (globalInput % 2 == 0) {
+        printf("%lu is devisable by 2\n", globalInput);
         return 0;
     }
 
-    for(char i = 0; i < threadCount; i++)
-    {
-        if( (rc=pthread_create( &threads[i], NULL, &thread, NULL)) )
-        {
-            printf("Thread %d creation failed: %d\n", i, rc);
-        } else {
-            printf("Created thread %d\n", i);
-        }
-    }
+    // Allocate Unified Memory – accessible from CPU or GPU
+    cudaMallocManaged(&globalIsPrime, sizeof(int));
 
-    for(char i = 0; i < threadCount; i++)
-    {
-        pthread_join(threads[i], NULL);
-    }
+    *globalIsPrime = 1;
 
-    return globalIsPrime;
+    // Run kernel on 1M elements on the GPU
+    int blockSize = 512;
+    int numBlocks = (globalMaxCompare/2 + blockSize - 1) / blockSize;
+    kernel<<<numBlocks, blockSize>>>(globalInput, globalMaxCompare, globalIsPrime);
+
+    // Wait for GPU to finish before accessing on host
+    cudaDeviceSynchronize();
+
+    int output = *globalIsPrime;
+
+    // Free memory
+    cudaFree(globalIsPrime);
+
+    return output;
 }
 
-int main(int argc, char const *argv[])
-{
-    __uint64_t input = 50000000021;
-
-    if (isPrime(input)) {
-        printf("yee\n");
+int main() {
+    if (calcSingle) {
+        printf("Begining calculation of %lu\n", singleInput);
+        if (isPrime(singleInput) == 1) {
+            printf("%lu is prime\ndone\n", singleInput);
+        } else {
+            printf("%lu is not prime\ndone\n", singleInput);
+        }
     } else {
-        printf("nah\n");
+        printf("Calculating primes from %lu to %lu\n", start, end);
+        for (__largeuint_t i = start; i < end; i++)
+        {
+            if (isPrime(i) == 1) {
+                printf("%lu\n", i);
+            }
+        }
     }
 
     return 0;
